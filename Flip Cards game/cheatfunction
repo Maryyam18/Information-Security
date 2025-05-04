@@ -1,0 +1,8 @@
+window.cheat = function() {
+    // Force all cards to be matched and flipped (instant win)
+    cards.forEach(card => {
+        card.matched = true;  // Mark all cards as matched
+        card.flipped = true;  // Flip all cards
+    });
+    renderGame();  // Re-render the board to show all cards as matched and flipped
+};
