@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload Module</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="upload-container">
+        <h2>Upload Your File</h2>
+        <input type="file" id="fileInput">
+        <button id="uploadBtn">Upload</button>
+        <button id="exploitBtn">Exploit</button>
+
+        <div id="uploadStatus"></div>
+
+        <script>
+            document.getElementById('uploadBtn').addEventListener('click', async () => {
+                let fileInput = document.getElementById('fileInput');
+                if (!fileInput.files.length) {
+                    alert("Please select a file first!");
+                    return;
+                }
+                let formData = new FormData();
+                formData.append("file", fileInput.files[0]);
+
+                let response = await fetch("/upload", {
+                    method: "POST",
+                    body: formData
+                });
+
+                let result = await response.text();
+                document.getElementById("uploadStatus").innerHTML = `<p>${result}</p>`;
+            });
+        </script>
+    </div>
+</body>
+</html>
